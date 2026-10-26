@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.1 — 2026-10-26
+
+- `LICENSE` is now pure MIT so GitHub's license detector reads it (the career-ops
+  attribution and the list of modifications live in THIRD-PARTY-NOTICES.md, as before).
+
 ## 1.0.0 — 2026-10-26
 
 First published build: career-ops as a DeepSeek Harness plugin.

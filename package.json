@@ -1,6 +1,6 @@
 {
   "name": "dsh-career-ops",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "career-ops job-search agent as a DeepSeek Harness plugin: evaluate postings into A-H reports with a 1-5 fit score, scan public ATS boards, tailor CVs and cover letters, and follow the whole pipeline in a Career Ops panel.",
   "license": "MIT",
   "type": "module",

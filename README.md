@@ -27,12 +27,12 @@ Requires DSH (a recent Harness release; the plugin uses the `skills`, `commands`
 **In a Harness session on the machine you want it on** — the reliable path, because the plugin
 manager both installs the package and selects the bundle for your profile:
 
-> Install the bundle `git+https://github.com/umerkhalid204/dsh-career-ops.git#v1.0.0`.
+> Install the bundle `git+https://github.com/umerkhalid204/dsh-career-ops.git#v1.0.1`.
 
 Or from a terminal, to install the package into a profile:
 
 ```bash
-dsh plugin --profile desktop add git+https://github.com/umerkhalid204/dsh-career-ops.git#v1.0.0
+dsh plugin --profile desktop add git+https://github.com/umerkhalid204/dsh-career-ops.git#v1.0.1
 ```
 
 If you installed with `dsh plugin add` rather than through a session, also select the bundle in

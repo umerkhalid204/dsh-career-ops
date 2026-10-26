@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-The `runtime/` directory is modified upstream source from career-ops
-(https://github.com/career-ops-hq/career-ops), also MIT-licensed; its license is
-reproduced in LICENSE.career-ops and the modifications are listed in
-THIRD-PARTY-NOTICES.md.
