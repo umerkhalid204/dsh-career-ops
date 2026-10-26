@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.2 — 2026-10-26
+
+- Ship the DACH market mode set (`runtime/modes/de`) so `language.modes_dir: modes/de` works:
+  German evaluation/apply vocabulary (Angebot/bewerben, 13. Monatsgehalt, Probezeit,
+  Kündigungsfrist, Tarifvertrag, AGG). Refreshed the rest of the runtime from upstream 1.38.0.
+
 ## 1.0.1 — 2026-10-26
 
 - `LICENSE` is now pure MIT so GitHub's license detector reads it (the career-ops
