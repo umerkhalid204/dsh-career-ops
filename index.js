@@ -177,7 +177,7 @@ function addTrackerRow(dataRoot, entry) {
     entry.company || '?',
     entry.role || '?',
     entry.score || 'N/A',
-    entry.status || 'Sourced',
+    STATES.includes(entry.status) ? entry.status : 'Evaluated',
     entry.pdf || '—',
     entry.report || '—',
     (entry.note || 'added by career-ops plugin').replace(/\|/g, '/'),
@@ -282,7 +282,26 @@ const INSIGHT_SCRIPTS = {
   health: ['verify-pipeline.mjs', []],
 }
 
-const STATUSES = 'Pending · Sourced · Evaluated · Applied · Interview · Offer · Rejected · Discarded'
+/**
+ * career-ops' canonical tracker states, read from `templates/states.yml` — the single
+ * source of truth that `set-status.mjs` validates against. The plugin must never
+ * advertise a state that file does not define: an option the validator rejects is a
+ * control that fails in the user's hands.
+ */
+const FALLBACK_STATES = ['Evaluated', 'Applied', 'Responded', 'Assessment', 'Interview', 'Offer', 'Rejected', 'Discarded', 'SKIP', 'Hired']
+function canonicalStates() {
+  try {
+    const text = fs.readFileSync(path.join(RUNTIME, 'templates', 'states.yml'), 'utf8')
+    const labels = [...text.matchAll(/^\s*label:\s*(.+)$/gm)]
+      .map((match) => match[1].trim().replace(/^["']|["']$/g, ''))
+      .filter(Boolean)
+    return labels.length ? labels : FALLBACK_STATES
+  } catch {
+    return FALLBACK_STATES
+  }
+}
+const STATES = canonicalStates()
+const STATUSES = STATES.join(' · ')
 
 // --- activation ------------------------------------------------------------
 
@@ -337,7 +356,7 @@ export function apply(ctx, config = {}) {
         entry: { type: 'string', description: 'tracker set: tracker row number or "Company" name' },
         report: { type: 'string', description: 'tracker set: report number instead of the tracker row number' },
         state: { type: 'string', description: `tracker set: new status (${STATUSES})` },
-        status: { type: 'string', description: 'tracker add: initial status for the new row (default Sourced). For an existing row use `state`.' },
+        status: { type: 'string', description: 'tracker add: canonical state for the new row (default Evaluated). Non-canonical values are refused. For an existing row use `state`.' },
         note: { type: 'string', description: 'tracker set/add: note text' },
         score: { type: 'string', description: 'tracker add: fit score, or N/A' },
         dry_run: { type: 'boolean', description: 'scan: do not write files' },
@@ -416,6 +435,9 @@ export function apply(ctx, config = {}) {
           }
           if (call.op === 'add') {
             if (!call.company || !call.role) return { ok: false, action: 'tracker', error: 'company and role are required to add a row' }
+            if (call.status !== undefined && !STATES.some((s) => s.toLowerCase() === String(call.status).toLowerCase())) {
+              return { ok: false, action: 'tracker', error: `"${call.status}" is not a canonical career-ops state (${STATUSES}). A lead you have not evaluated yet belongs in the queue — use {action:"pipeline", op:"add", url}. The tracker holds rows that have a report or a stated application state.` }
+            }
             return { ok: true, action: 'tracker', data: addTrackerRow(dataRoot, call) }
           }
           const tracker = readTracker(dataRoot)
@@ -514,6 +536,7 @@ export function apply(ctx, config = {}) {
         const pipeline = readPipeline(dataRoot)
         return sendJson(res, 200, {
           ok: true,
+          states: STATES,
           dataRoot,
           setup: setupStatus(dataRoot),
           tracker: tracker.rows,

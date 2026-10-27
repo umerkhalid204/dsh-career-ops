@@ -66,7 +66,9 @@ window.__ModuleLoader__.load({
   border-color:var(--dsw-alias-border-l2); }
 `
 
-    const STATES = ['Pending', 'Sourced', 'Evaluated', 'Applied', 'Interview', 'Offer', 'Rejected', 'Discarded']
+    // Fallback only: the page takes the authoritative list from the Host
+    // (/career-ops/api/state → `states`), which reads career-ops' templates/states.yml.
+    const FALLBACK_STATES = ['Evaluated', 'Applied', 'Responded', 'Assessment', 'Interview', 'Offer', 'Rejected', 'Discarded', 'SKIP', 'Hired']
 
     function scoreClass(score) {
       const n = Number.parseFloat(score)
@@ -130,6 +132,8 @@ window.__ModuleLoader__.load({
 
       const rows = (state && state.tracker) || []
       const pipeline = (state && state.pipeline) || { pending: [], blocked: [], done: 0 }
+      // Canonical states come from the Host, which reads career-ops' states.yml.
+      const STATES = Array.isArray(state?.states) && state.states.length ? state.states : FALLBACK_STATES
       const counts = {}
       for (const row of rows) counts[row.status || '—'] = (counts[row.status || '—'] || 0) + 1
       const visible = filter ? rows.filter((row) => row.status === filter) : rows

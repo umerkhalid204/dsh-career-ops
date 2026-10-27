@@ -1,5 +1,19 @@
 # Changelog
 
+## 1.0.4 — 2026-10-27
+
+- **Bug fix — wrong state vocabulary.** The tool and the Career Ops panel offered
+  `Pending` / `Sourced`, which career-ops does not define, and omitted `Responded`,
+  `Assessment`, `SKIP`, `Hired`. Any change through those options failed at
+  `set-status.mjs`, so the panel's control was broken for four of its nine entries.
+  The state list is now read from career-ops' `templates/states.yml` (the same file
+  `set-status.mjs` validates against), served to the page as `/career-ops/api/state`
+  → `states`, and used by the tool description, its `state`/`status` parameters and the
+  panel's chips and dropdown. A hard-coded copy remains only as an offline fallback.
+- `tracker op:"add"` now refuses a non-canonical `status` and points at
+  `{action:"pipeline", op:"add"}` for leads that have not been evaluated, instead of
+  writing a row no state transition can ever leave.
+
 ## 1.0.3 — 2026-10-27
 
 - **Bug fix:** `career_ops {action:"tracker", op:"add"}` silently fell back to a list read when the
