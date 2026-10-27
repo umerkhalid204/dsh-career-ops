@@ -337,6 +337,7 @@ export function apply(ctx, config = {}) {
         entry: { type: 'string', description: 'tracker set: tracker row number or "Company" name' },
         report: { type: 'string', description: 'tracker set: report number instead of the tracker row number' },
         state: { type: 'string', description: `tracker set: new status (${STATUSES})` },
+        status: { type: 'string', description: 'tracker add: initial status for the new row (default Sourced). For an existing row use `state`.' },
         note: { type: 'string', description: 'tracker set/add: note text' },
         score: { type: 'string', description: 'tracker add: fit score, or N/A' },
         dry_run: { type: 'boolean', description: 'scan: do not write files' },
@@ -391,6 +392,9 @@ export function apply(ctx, config = {}) {
           return { ok: run.ok, action: 'scan', output: run.stdout || run.stderr, ...(run.ok ? {} : { error: `scan.mjs exited ${run.code}` }), data: { pending: pipeline.pending.length, done: pipeline.done } }
         }
         case 'pipeline': {
+          if (!call.op && call.url !== undefined) {
+            return { ok: false, action: 'pipeline', error: 'pipeline needs op: "add" to queue a url, or "list" to read the queue — nothing was written.' }
+          }
           if (call.op === 'add') {
             if (!call.url) return { ok: false, action: 'pipeline', error: 'url is required' }
             const added = appendPipelineUrl(dataRoot, call.url)
@@ -400,6 +404,12 @@ export function apply(ctx, config = {}) {
           return { ok: true, action: 'pipeline', data: pipeline }
         }
         case 'tracker': {
+          // A dropped or mistyped `op` must never masquerade as a read: if the
+          // caller clearly meant to write, fail loudly and write nothing.
+          if (!call.op && (call.company !== undefined || call.role !== undefined || call.state !== undefined || call.entry !== undefined)) {
+            const given = ['company', 'role', 'state', 'entry', 'score', 'note'].filter((k) => call[k] !== undefined)
+            return { ok: false, action: 'tracker', error: `tracker needs op: "list" | "add" | "set" — nothing was written. Write-intent arguments seen: ${given.join(', ') || 'none'}.` }
+          }
           if (call.op === 'set') {
             const result = await setStatus(dataRoot, call)
             return { ok: result.ok, action: 'tracker', ...(result.output ? { output: result.output } : {}), ...(result.error ? { error: result.error } : {}), data: { entry: result.entry ?? null, state: result.state ?? null } }

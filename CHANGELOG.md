@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.0.3 — 2026-10-27
+
+- **Bug fix:** `career_ops {action:"tracker", op:"add"}` silently fell back to a list read when the
+  call carried `status` — that property was missing from the tool's parameter schema, and with
+  `additionalProperties: false` the arguments were dropped before execution. `status` is now declared
+  (initial status for a new row; `state` stays the field for changing an existing row).
+- Write-intent calls that arrive without a recognised `op` now fail loudly instead of reading:
+  `tracker` errors when company/role/state/entry are present without `op`, and `pipeline` errors when
+  `url` is present without `op`. Nothing is written in either case.
+
 ## 1.0.2 — 2026-10-26
 
 - Ship the DACH market mode set (`runtime/modes/de`) so `language.modes_dir: modes/de` works:
